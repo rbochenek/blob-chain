@@ -314,8 +314,8 @@ mod runtime {
 	#[runtime::pallet_index(7)]
 	pub type TemplateModule = pallet_template;
 
-  #[runtime::pallet_index(8)]
-  pub type Multisig = pallet_multisig;
+    #[runtime::pallet_index(8)]
+    pub type Multisig = pallet_multisig;
 }
 
 /// The address format for describing accounts.

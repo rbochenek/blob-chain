@@ -253,6 +253,25 @@ impl pallet_template::Config for Runtime {
 	type WeightInfo = pallet_template::weights::SubstrateWeight<Runtime>;
 }
 
+parameter_types! {
+    // Deposit to initiate multisig tx
+    pub const DepositBase: Balance = 10_000_000_000;
+    // Deposit factor
+    // total = (deposit) + (threshold * factor)
+    pub const DepositFactor: Balance = 1_100_000_000;
+}
+
+/// Configure pallet-multisig
+impl pallet_multisig::Config for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type RuntimeCall = RuntimeCall;
+    type Currency = Balances;
+    type MaxSignatories = ConstU32<20>;
+    type DepositBase = DepositBase;
+    type DepositFactor = DepositFactor;
+    type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -294,6 +313,9 @@ mod runtime {
 	// Include the custom logic from the pallet-template in the runtime.
 	#[runtime::pallet_index(7)]
 	pub type TemplateModule = pallet_template;
+
+  #[runtime::pallet_index(8)]
+  pub type Multisig = pallet_multisig;
 }
 
 /// The address format for describing accounts.

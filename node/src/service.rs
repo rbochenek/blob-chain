@@ -3,12 +3,10 @@
 use blobchain_runtime::{self, opaque::Block, RuntimeApi};
 use futures::FutureExt;
 use sc_client_api::{Backend, BlockBackend};
-use sc_consensus_aura::{ImportQueueParams, SlotProportion, StartAuraParams};
 use sc_consensus_grandpa::SharedVoterState;
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager, WarpSyncParams};
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sc_transaction_pool_api::OffchainTransactionPoolFactory;
-use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
 use std::{sync::Arc, time::Duration};
 
 pub(crate) type FullClient = sc_service::TFullClient<
@@ -36,6 +34,7 @@ pub type Service = sc_service::PartialComponents<
     ),
 >;
 
+// Creates a partial node
 pub fn new_partial(config: &Configuration) -> Result<Service, ServiceError> {
     let telemetry = config
         .telemetry_endpoints
@@ -83,35 +82,35 @@ pub fn new_partial(config: &Configuration) -> Result<Service, ServiceError> {
     )?;
 
     let cidp_client = client.clone();
-    let import_queue =
-        sc_consensus_aura::import_queue::<AuraPair, _, _, _, _, _>(ImportQueueParams {
-            block_import: grandpa_block_import.clone(),
-            justification_import: Some(Box::new(grandpa_block_import.clone())),
-            client: client.clone(),
-            create_inherent_data_providers: move |parent_hash, _| {
-                let cidp_client = cidp_client.clone();
-                async move {
-                    let slot_duration = sc_consensus_aura::standalone::slot_duration_at(
-                        &*cidp_client,
-                        parent_hash,
-                    )?;
-                    let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
-
-                    let slot =
-						sp_consensus_aura::inherents::InherentDataProvider::from_timestamp_and_slot_duration(
-							*timestamp,
-							slot_duration,
-						);
-
-                    Ok((slot, timestamp))
-                }
-            },
-            spawner: &task_manager.spawn_essential_handle(),
-            registry: config.prometheus_registry(),
-            check_for_equivocation: Default::default(),
-            telemetry: telemetry.as_ref().map(|x| x.handle()),
-            compatibility_mode: Default::default(),
-        })?;
+    // let import_queue =
+    //     sc_consensus_aura::import_queue::<AuraPair, _, _, _, _, _>(ImportQueueParams {
+    //         block_import: grandpa_block_import.clone(),
+    //         justification_import: Some(Box::new(grandpa_block_import.clone())),
+    //         client: client.clone(),
+    //         create_inherent_data_providers: move |parent_hash, _| {
+    //             let cidp_client = cidp_client.clone();
+    //             async move {
+    //                 let slot_duration = sc_consensus_aura::standalone::slot_duration_at(
+    //                     &*cidp_client,
+    //                     parent_hash,
+    //                 )?;
+    //                 let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+    //
+    //                 let slot =
+				// 		sp_consensus_aura::inherents::InherentDataProvider::from_timestamp_and_slot_duration(
+				// 			*timestamp,
+				// 			slot_duration,
+				// 		);
+    //
+    //                 Ok((slot, timestamp))
+    //             }
+    //         },
+    //         spawner: &task_manager.spawn_essential_handle(),
+    //         registry: config.prometheus_registry(),
+    //         check_for_equivocation: Default::default(),
+    //         telemetry: telemetry.as_ref().map(|x| x.handle()),
+    //         compatibility_mode: Default::default(),
+    //     })?;
 
     Ok(sc_service::PartialComponents {
         client,

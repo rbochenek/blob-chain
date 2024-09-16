@@ -1,6 +1,7 @@
+use blobchain_runtime::BABE_GENESIS_EPOCH_CONFIG;
 use blobchain_runtime::{AccountId, Signature, WASM_BINARY};
 use sc_service::ChainType;
-use sp_consensus_aura::sr25519::AuthorityId as AuraId;
+use sp_consensus_babe::AuthorityId as BabeId;
 use sp_consensus_grandpa::AuthorityId as GrandpaId;
 use sp_core::{sr25519, Pair, Public};
 use sp_runtime::traits::{IdentifyAccount, Verify};
@@ -28,9 +29,15 @@ where
     AccountPublic::from(get_from_seed::<TPublic>(seed)).into_account()
 }
 
-/// Generate an Aura authority key.
-pub fn authority_keys_from_seed(s: &str) -> (AuraId, GrandpaId) {
-    (get_from_seed::<AuraId>(s), get_from_seed::<GrandpaId>(s))
+/// Generate an Babe authority key.
+pub fn authority_keys_from_seed(s: &str) -> (AccountId, AccountId, BabeId, GrandpaId) {
+    (
+        get_account_id_from_seed::<sr25519::Public>(&format!("{}//stash", s)),
+        get_account_id_from_seed::<sr25519::Public>(s),
+        get_from_seed::<BabeId>(s),
+        get_from_seed::<GrandpaId>(s),
+        // get_from_seed::<ImOnlineId>(s),
+    )
 }
 
 pub fn development_config() -> Result<ChainSpec, String> {

@@ -26,11 +26,9 @@ pallet-sudo.workspace = true
 pallet-timestamp.workspace = true
 pallet-transaction-payment.workspace = true
 pallet-multisig.workspace = true
-pallet-babe.workspace = true
 sp-api.workspace = true
 sp-block-builder.workspace = true
 sp-consensus-aura = { features = ["serde"], workspace = true }
-sp-consensus-babe = { features = ["serde"], workspace = true }
 sp-consensus-grandpa = { features = ["serde"], workspace = true }
 sp-core = { features = ["serde"], workspace = true }
 sp-inherents.workspace = true
@@ -72,12 +70,10 @@ std = [
 	"pallet-transaction-payment-rpc-runtime-api/std",
 	"pallet-transaction-payment/std",
 	"pallet-multisig/std",
-	"pallet-babe/std",
 
 	"sp-api/std",
 	"sp-block-builder/std",
 	"sp-consensus-aura/std",
-	"sp-consensus-babe/std",
 	"sp-consensus-grandpa/std",
 	"sp-core/std",
 	"sp-genesis-builder/std",
@@ -102,7 +98,6 @@ runtime-benchmarks = [
 	"pallet-sudo/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
 	"pallet-multisig/runtime-benchmarks",
-	"pallet-babe/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 ]
 
@@ -118,6 +113,5 @@ try-runtime = [
 	"pallet-timestamp/try-runtime",
 	"pallet-transaction-payment/try-runtime",
 	"pallet-multisig/try-runtime",
-	"pallet-babe/try-runtime",
 	"sp-runtime/try-runtime",
 ]

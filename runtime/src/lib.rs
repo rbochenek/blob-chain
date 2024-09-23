@@ -263,6 +263,13 @@ impl pallet_multisig::Config for Runtime {
 	type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
 }
 
+impl pallet_utility::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type PalletsOrigin = OriginCaller;
+	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -303,6 +310,9 @@ mod runtime {
 
 	#[runtime::pallet_index(7)]
 	pub type Multisig = pallet_multisig;
+
+	#[runtime::pallet_index(8)]
+	pub type Utility = pallet_utility;
 }
 
 /// The address format for describing accounts.

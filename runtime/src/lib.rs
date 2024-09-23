@@ -245,22 +245,22 @@ impl pallet_sudo::Config for Runtime {
 }
 
 parameter_types! {
-    // Deposit to initiate multisig tx
-    pub const DepositBase: Balance = 10_000_000_000;
-    // Deposit factor
-    // total = (deposit) + (threshold * factor)
-    pub const DepositFactor: Balance = 1_100_000_000;
+	// Deposit to initiate multisig tx
+	pub const DepositBase: Balance = 10_000_000_000;
+	// Deposit factor
+	// total = (deposit) + (threshold * factor)
+	pub const DepositFactor: Balance = 1_100_000_000;
 }
 
 /// Configure pallet-multisig
 impl pallet_multisig::Config for Runtime {
-    type RuntimeEvent = RuntimeEvent;
-    type RuntimeCall = RuntimeCall;
-    type Currency = Balances;
-    type MaxSignatories = ConstU32<20>;
-    type DepositBase = DepositBase;
-    type DepositFactor = DepositFactor;
-    type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+	type Currency = Balances;
+	type MaxSignatories = ConstU32<20>;
+	type DepositBase = DepositBase;
+	type DepositFactor = DepositFactor;
+	type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -301,8 +301,8 @@ mod runtime {
 	#[runtime::pallet_index(6)]
 	pub type Sudo = pallet_sudo;
 
-    #[runtime::pallet_index(7)]
-    pub type Multisig = pallet_multisig;
+	#[runtime::pallet_index(7)]
+	pub type Multisig = pallet_multisig;
 }
 
 /// The address format for describing accounts.

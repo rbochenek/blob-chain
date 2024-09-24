@@ -39,6 +39,7 @@ use frame_support::{
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
+pub use pallet_blobmanager;
 pub use pallet_timestamp::Call as TimestampCall;
 use pallet_transaction_payment::{ConstFeeMultiplier, FungibleAdapter, Multiplier};
 #[cfg(any(feature = "std", test))]
@@ -270,6 +271,10 @@ impl pallet_utility::Config for Runtime {
 	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
 }
 
+impl pallet_blobmanager::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -313,6 +318,9 @@ mod runtime {
 
 	#[runtime::pallet_index(8)]
 	pub type Utility = pallet_utility;
+
+	#[runtime::pallet_index(10)]
+	pub type BlobManager = pallet_blobmanager;
 }
 
 /// The address format for describing accounts.

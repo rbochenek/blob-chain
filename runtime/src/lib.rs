@@ -273,6 +273,7 @@ impl pallet_utility::Config for Runtime {
 
 impl pallet_blobmanager::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = pallet_blobmanager::weights::SubstrateWeight<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -370,6 +371,7 @@ mod benches {
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_sudo, Sudo]
+		[pallet_blobmanager, BlobManager]
 	);
 }
 

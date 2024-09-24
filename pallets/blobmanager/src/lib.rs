@@ -11,6 +11,8 @@
 //! This pallet contains functionality for storing blobs (Binary Large Objects) using on-chain
 //! storage
 
+// NOTE: PoV limits size of the blob (5 MB): https://github.com/paritytech/polkadot-sdk/blob/c987da33935898cd5b2f8605d548bc48727c1815/polkadot/primitives/src/v8/mod.rs#L429
+
 // Ensure we're 'no_std' when compiling for WebAssembly.
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -19,9 +21,13 @@ use alloc::vec::Vec;
 
 pub use pallet::*;
 
+#[cfg(feature = "runtime-benchmarks")]
+mod benchmarking;
+pub mod weights;
+pub use weights::*;
+
 // WARNING: Uses 'Dev Mode' to simplify things for now. Do NOT use in production.
 // See: https://paritytech.github.io/polkadot-sdk/master/frame_support/attr.pallet.html#dev-mode-palletdev_mode
-// TODO: Benchmarking (weights)
 // TODO: Tests
 #[frame_support::pallet(dev_mode)]
 pub mod pallet {
@@ -35,6 +41,7 @@ pub mod pallet {
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+		type WeightInfo: WeightInfo;
 	}
 
 	#[pallet::storage]
@@ -97,6 +104,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		/// Set new Uploader
 		#[pallet::call_index(0)]
+		#[pallet::weight(T::WeightInfo::set_uploader())]
 		pub fn set_uploader(origin: OriginFor<T>, uploader: T::AccountId) -> DispatchResult {
 			let sender = ensure_signed_or_root(origin)?;
 
@@ -118,6 +126,7 @@ pub mod pallet {
 		/// Upload new Blob
 		/// Only callable by Uploader
 		#[pallet::call_index(1)]
+		#[pallet::weight(T::WeightInfo::upload_blob())]
 		pub fn upload_blob(origin: OriginFor<T>, blob: Vec<u8>) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 

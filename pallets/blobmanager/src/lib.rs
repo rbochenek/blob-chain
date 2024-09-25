@@ -22,6 +22,8 @@ use alloc::vec::Vec;
 pub use pallet::*;
 
 mod benchmarking;
+mod mock;
+mod tests;
 pub mod weights;
 pub use weights::*;
 

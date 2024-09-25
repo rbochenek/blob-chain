@@ -42,6 +42,8 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		type WeightInfo: WeightInfo;
+		/// The maximum number of blobs stored per block
+		type MaxBlobsPerBlock: Get<u32>;
 	}
 
 	#[pallet::storage]
@@ -51,8 +53,13 @@ pub mod pallet {
 	pub type Uploader<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
 	#[pallet::storage]
-	pub type Blobs<T: Config> =
-		StorageMap<_, Blake2_128Concat, BlockNumberFor<T>, Vec<Vec<u8>>, ValueQuery>;
+	pub type Blobs<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		BlockNumberFor<T>,
+		BoundedVec<Vec<u8>, T::MaxBlobsPerBlock>,
+		ValueQuery,
+	>;
 
 	// Errors that can be returned by this pallet
 	#[pallet::error]
@@ -65,6 +72,8 @@ pub mod pallet {
 		UploaderNotSet,
 		// Only callable by Uploader
 		CallableByUploaderOnly,
+		// Trying to append too many blobs in the current block
+		ExceededMaxBlobsPerBlock,
 	}
 
 	// Events that can be emitted
@@ -144,7 +153,7 @@ pub mod pallet {
 			let mut blob_vec = Blobs::<T>::get(block_number);
 
 			// Append blob
-			blob_vec.push(blob);
+			blob_vec.try_push(blob).map_err(|_| Error::<T>::ExceededMaxBlobsPerBlock)?;
 
 			// Store Blobs
 			Blobs::<T>::insert(block_number, blob_vec);

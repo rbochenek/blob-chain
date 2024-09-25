@@ -274,6 +274,7 @@ impl pallet_utility::Config for Runtime {
 impl pallet_blobmanager::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = pallet_blobmanager::weights::SubstrateWeight<Runtime>;
+	type MaxBlobsPerBlock = ConstU32<5>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.

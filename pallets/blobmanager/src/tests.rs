@@ -59,15 +59,17 @@ fn upload_blob_works() {
 	new_test_ext().execute_with(|| {
 		// Go past genesis block so events get deposited
 		System::set_block_number(1);
+		// Prepare blob
+		let max_blob_size: u32 = <Test as Config>::MaxBlobSize::get();
+		let blob = vec![42u8; max_blob_size as usize];
 		// Store blob
-		let blob = vec![1, 2, 3, 4, 5];
 		assert_ok!(BlobManager::upload_blob(RuntimeOrigin::signed(2), blob.clone()));
 		// Make sure event was deposited
 		System::assert_last_event(Event::BlobStored.into());
 		// Verify storage
 		assert_eq!(
 			Blobs::<Test>::iter_values().next().expect("No blobs stored").first(),
-			Some(&blob)
+			Some(&blob.try_into().unwrap())
 		);
 	})
 }
@@ -98,12 +100,13 @@ fn upload_blob_uploader_not_set() {
 }
 
 #[test]
-fn upload_blob_too_much_blobs_per_block() {
+fn upload_blob_exceeds_blobs_per_block() {
 	new_test_ext().execute_with(|| {
 		// Go past genesis block so events get deposited
 		System::set_block_number(1);
 		// Prepare 1k blob
-		let blob = vec![0u8; 1024 * 1024];
+		let max_blob_size: u32 = <Test as Config>::MaxBlobSize::get();
+		let blob = vec![0u8; max_blob_size as usize];
 		// Store maximum number of blobs per block
 		let maxblobs: u32 = <Test as Config>::MaxBlobsPerBlock::get();
 		for _ in 0..maxblobs {
@@ -114,6 +117,18 @@ fn upload_blob_too_much_blobs_per_block() {
 		assert_noop!(
 			BlobManager::upload_blob(RuntimeOrigin::signed(2), blob.clone()),
 			Error::<Test>::ExceededMaxBlobsPerBlock
+		);
+	})
+}
+
+#[test]
+fn upload_blob_exceeds_max_blob_size() {
+	new_test_ext().execute_with(|| {
+		let max_blob_size: u32 = <Test as Config>::MaxBlobSize::get();
+		let blob = vec![0u8; (max_blob_size + 1) as usize];
+		assert_noop!(
+			BlobManager::upload_blob(RuntimeOrigin::signed(2), blob),
+			Error::<Test>::ExceededMaxBlobSize
 		);
 	})
 }

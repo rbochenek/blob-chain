@@ -10,8 +10,10 @@
 //!
 //! This pallet contains functionality for storing blobs (Binary Large Objects) using on-chain
 //! storage
-
-// NOTE: PoV limits size of the blob (5 MB): https://github.com/paritytech/polkadot-sdk/blob/c987da33935898cd5b2f8605d548bc48727c1815/polkadot/primitives/src/v8/mod.rs#L429
+//!
+//! Care should be taken not to exceed [PoV size per block]
+//!
+//! [PoV size per block]: https://github.com/paritytech/polkadot-sdk/blob/c987da33935898cd5b2f8605d548bc48727c1815/polkadot/primitives/src/v8/mod.rs#L429
 
 // Ensure we're 'no_std' when compiling for WebAssembly.
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -29,7 +31,6 @@ pub use weights::*;
 
 // WARNING: Uses 'Dev Mode' to simplify things for now. Do NOT use in production.
 // See: https://paritytech.github.io/polkadot-sdk/master/frame_support/attr.pallet.html#dev-mode-palletdev_mode
-// TODO: Bounded storage
 #[frame_support::pallet(dev_mode)]
 pub mod pallet {
 	use super::*;
@@ -45,6 +46,8 @@ pub mod pallet {
 		type WeightInfo: WeightInfo;
 		/// The maximum number of blobs stored per block
 		type MaxBlobsPerBlock: Get<u32>;
+		/// The maximum size of a single blob (in bytes)
+		type MaxBlobSize: Get<u32>;
 	}
 
 	#[pallet::storage]
@@ -58,7 +61,7 @@ pub mod pallet {
 		_,
 		Blake2_128Concat,
 		BlockNumberFor<T>,
-		BoundedVec<Vec<u8>, T::MaxBlobsPerBlock>,
+		BoundedVec<BoundedVec<u8, T::MaxBlobSize>, T::MaxBlobsPerBlock>,
 		ValueQuery,
 	>;
 
@@ -73,8 +76,10 @@ pub mod pallet {
 		UploaderNotSet,
 		// Only callable by Uploader
 		CallableByUploaderOnly,
-		// Trying to append too many blobs in the current block
+		// Trying to add too many blobs in the current block
 		ExceededMaxBlobsPerBlock,
+		// Trying to add too big blob
+		ExceededMaxBlobSize,
 	}
 
 	// Events that can be emitted
@@ -117,6 +122,7 @@ pub mod pallet {
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
 		/// Set new Uploader
+		/// Callable by Admin or Root
 		#[pallet::call_index(0)]
 		#[pallet::weight(T::WeightInfo::set_uploader())]
 		pub fn set_uploader(origin: OriginFor<T>, uploader: T::AccountId) -> DispatchResult {
@@ -155,13 +161,15 @@ pub mod pallet {
 			let block_number = <frame_system::Pallet<T>>::block_number();
 
 			// Get vector for current block from storage
-			let mut blob_vec = Blobs::<T>::get(block_number);
+			let mut blobs_outer_vec = Blobs::<T>::get(block_number);
 
-			// Append blob
-			blob_vec.try_push(blob).map_err(|_| Error::<T>::ExceededMaxBlobsPerBlock)?;
+			// Push new blob
+			blobs_outer_vec
+				.try_push(blob.try_into().map_err(|_| Error::<T>::ExceededMaxBlobSize)?)
+				.map_err(|_| Error::<T>::ExceededMaxBlobsPerBlock)?;
 
 			// Store Blobs
-			Blobs::<T>::insert(block_number, blob_vec);
+			Blobs::<T>::insert(block_number, blobs_outer_vec);
 
 			// Emit BlobStored event
 			Self::deposit_event(Event::BlobStored);

@@ -46,6 +46,8 @@ use pallet_transaction_payment::{ConstFeeMultiplier, FungibleAdapter, Multiplier
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
+mod constants;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -271,10 +273,16 @@ impl pallet_utility::Config for Runtime {
 	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
 }
 
+parameter_types! {
+		pub const MaxBlobsPerBlock: u32 = constants::blobmanager::MAX_BLOBS_PER_BLOCK;
+		pub const MaxBlobSize: u32 = constants::blobmanager::MAX_BLOB_SIZE;
+}
+
 impl pallet_blobmanager::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = pallet_blobmanager::weights::SubstrateWeight<Runtime>;
-	type MaxBlobsPerBlock = ConstU32<5>;
+	type MaxBlobsPerBlock = MaxBlobsPerBlock;
+	type MaxBlobSize = MaxBlobSize;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.

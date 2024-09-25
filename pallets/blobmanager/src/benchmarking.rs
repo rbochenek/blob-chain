@@ -5,6 +5,7 @@ use super::*;
 use crate::Pallet as Template;
 use alloc::vec;
 use frame_benchmarking::v2::*;
+use frame_support::traits::Get;
 use frame_system::RawOrigin;
 
 #[benchmarks]
@@ -32,14 +33,16 @@ mod benchmarks {
 			.expect("set_uploader() fail");
 
 		// Prepare blob to upload
-		// TODO: This benchmark is flawed since the pallet storage is unbounded at this point
-		let blob = vec![9; 1024 * 1024]; // 1 MB
+		let blob = vec![0u8; <T as Config>::MaxBlobSize::get() as usize];
 
 		#[extrinsic_call]
 		upload_blob(RawOrigin::Signed(uploader), blob.clone());
 
 		// Verification code
-		assert_eq!(Blobs::<T>::iter_values().next().expect("No blobs stored").first(), Some(&blob));
+		assert_eq!(
+			Blobs::<T>::iter_values().next().expect("No blobs stored").first(),
+			Some(&blob.try_into().unwrap())
+		);
 	}
 
 	impl_benchmark_test_suite!(Template, crate::mock::new_test_ext(), crate::mock::Test);

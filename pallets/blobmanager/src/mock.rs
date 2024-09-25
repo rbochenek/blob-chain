@@ -21,6 +21,10 @@ impl Config for Test {
 	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();
 	type MaxBlobsPerBlock = ConstU32<4>;
+	#[cfg(not(feature = "runtime-benchmarks"))]
+	type MaxBlobSize = ConstU32<1024>; // 1 kB
+	#[cfg(feature = "runtime-benchmarks")]
+	type MaxBlobSize = ConstU32<5242880>; // 5 MB
 }
 
 // Build genesis storage according to the mock runtime

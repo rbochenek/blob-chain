@@ -21,7 +21,6 @@ use alloc::vec::Vec;
 
 pub use pallet::*;
 
-#[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 pub mod weights;
 pub use weights::*;

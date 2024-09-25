@@ -21,7 +21,7 @@
 // --template
 // ../../frame-weight-template.hbs
 // --output
-// pallets/blobmanager/src/weights2.rs
+// pallets/blobmanager/src/weights.rs
 // --steps
 // 20
 // --repeat
@@ -50,8 +50,8 @@ impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
 		// Proof Size summary in bytes:
 		//  Measured:  `0`
 		//  Estimated: `0`
-		// Minimum execution time: 2_310_000 picoseconds.
-		Weight::from_parts(2_450_000, 0)
+		// Minimum execution time: 2_300_000 picoseconds.
+		Weight::from_parts(2_461_000, 0)
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
 	/// Storage: `BlobManager::Uploader` (r:1 w:0)
@@ -62,8 +62,8 @@ impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
 		// Proof Size summary in bytes:
 		//  Measured:  `37`
 		//  Estimated: `5246386`
-		// Minimum execution time: 514_881_000 picoseconds.
-		Weight::from_parts(533_123_000, 5246386)
+		// Minimum execution time: 512_572_000 picoseconds.
+		Weight::from_parts(527_373_000, 5246386)
 			.saturating_add(T::DbWeight::get().reads(2_u64))
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
@@ -77,8 +77,8 @@ impl WeightInfo for () {
 		// Proof Size summary in bytes:
 		//  Measured:  `0`
 		//  Estimated: `0`
-		// Minimum execution time: 2_310_000 picoseconds.
-		Weight::from_parts(2_450_000, 0)
+		// Minimum execution time: 2_300_000 picoseconds.
+		Weight::from_parts(2_461_000, 0)
 			.saturating_add(RocksDbWeight::get().writes(1_u64))
 	}
 	/// Storage: `BlobManager::Uploader` (r:1 w:0)
@@ -89,8 +89,8 @@ impl WeightInfo for () {
 		// Proof Size summary in bytes:
 		//  Measured:  `37`
 		//  Estimated: `5246386`
-		// Minimum execution time: 514_881_000 picoseconds.
-		Weight::from_parts(533_123_000, 5246386)
+		// Minimum execution time: 512_572_000 picoseconds.
+		Weight::from_parts(527_373_000, 5246386)
 			.saturating_add(RocksDbWeight::get().reads(2_u64))
 			.saturating_add(RocksDbWeight::get().writes(1_u64))
 	}

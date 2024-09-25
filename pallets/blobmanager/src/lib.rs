@@ -86,8 +86,8 @@ pub mod pallet {
 	// Genesis config
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T: Config> {
-		admin: Option<T::AccountId>,
-		uploader: Option<T::AccountId>,
+		pub admin: Option<T::AccountId>,
+		pub uploader: Option<T::AccountId>,
 	}
 
 	// Genesis config (default)
@@ -103,6 +103,10 @@ pub mod pallet {
 		fn build(&self) {
 			if let Some(admin) = &self.admin {
 				Admin::<T>::put(admin);
+			}
+
+			if let Some(uploader) = &self.uploader {
+				Uploader::<T>::put(uploader);
 			}
 		}
 	}

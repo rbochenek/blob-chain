@@ -41,4 +41,6 @@ mod benchmarks {
 		// Verification code
 		assert_eq!(Blobs::<T>::iter_values().next().expect("No blobs stored").first(), Some(&blob));
 	}
+
+	impl_benchmark_test_suite!(Template, crate::mock::new_test_ext(), crate::mock::Test);
 }

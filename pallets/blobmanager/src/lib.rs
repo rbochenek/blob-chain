@@ -29,9 +29,7 @@ mod tests;
 pub mod weights;
 pub use weights::*;
 
-// WARNING: Uses 'Dev Mode' to simplify things for now. Do NOT use in production.
-// See: https://paritytech.github.io/polkadot-sdk/master/frame_support/attr.pallet.html#dev-mode-palletdev_mode
-#[frame_support::pallet(dev_mode)]
+#[frame_support::pallet]
 pub mod pallet {
 	use super::*;
 	use frame_support::pallet_prelude::*;

@@ -15,6 +15,9 @@ frame-support.workspace = true
 frame-system.workspace = true
 scale-info = { features = ["derive"], workspace = true }
 
+[dev-dependencies]
+sp-io = { default-features = false, workspace = true }
+
 [features]
 default = ["std"]
 std = [

@@ -28,6 +28,10 @@ pallet-transaction-payment.workspace = true
 pallet-multisig.workspace = true
 pallet-utility.workspace = true
 pallet-blobmanager.workspace = true
+pallet-preimage.workspace = true
+pallet-scheduler.workspace = true
+pallet-collective.workspace = true
+pallet-democracy.workspace = true
 sp-api.workspace = true
 sp-block-builder.workspace = true
 sp-consensus-aura = { features = ["serde"], workspace = true }
@@ -74,6 +78,10 @@ std = [
 	"pallet-multisig/std",
 	"pallet-utility/std",
 	"pallet-blobmanager/std",
+	"pallet-preimage/std",
+	"pallet-scheduler/std",
+	"pallet-collective/std",
+	"pallet-democracy/std",
 
 	"sp-api/std",
 	"sp-block-builder/std",
@@ -104,6 +112,10 @@ runtime-benchmarks = [
 	"pallet-multisig/runtime-benchmarks",
 	"pallet-utility/runtime-benchmarks",
 	"pallet-blobmanager/runtime-benchmarks",
+	"pallet-preimage/runtime-benchmarks",
+	"pallet-scheduler/runtime-benchmarks",
+	"pallet-collective/runtime-benchmarks",
+	"pallet-democracy/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 ]
 
@@ -121,5 +133,9 @@ try-runtime = [
 	"pallet-multisig/try-runtime",
 	"pallet-utility/try-runtime",
 	"pallet-blobmanager/try-runtime",
+	"pallet-preimage/try-runtime",
+	"pallet-scheduler/try-runtime",
+	"pallet-collective/try-runtime",
+	"pallet-democracy/try-runtime",
 	"sp-runtime/try-runtime",
 ]

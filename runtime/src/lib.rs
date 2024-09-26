@@ -37,7 +37,7 @@ use frame_support::{
 	genesis_builder_helper::{build_state, get_preset},
 	traits::VariantCountOf,
 };
-pub use frame_system::Call as SystemCall;
+pub use frame_system::{Call as SystemCall, EnsureRoot};
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_blobmanager;
 pub use pallet_timestamp::Call as TimestampCall;
@@ -285,6 +285,14 @@ impl pallet_blobmanager::Config for Runtime {
 	type MaxBlobSize = MaxBlobSize;
 }
 
+impl pallet_preimage::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = pallet_preimage::weights::SubstrateWeight<Runtime>;
+	type Currency = Balances;
+	type ManagerOrigin = EnsureRoot<AccountId>;
+	type Consideration = ();
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -331,6 +339,9 @@ mod runtime {
 
 	#[runtime::pallet_index(10)]
 	pub type BlobManager = pallet_blobmanager;
+
+	#[runtime::pallet_index(11)]
+	pub type Preimage = pallet_preimage;
 }
 
 /// The address format for describing accounts.

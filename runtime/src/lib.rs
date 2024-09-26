@@ -39,11 +39,14 @@ use frame_support::{
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
+pub use pallet_blobmanager;
 pub use pallet_timestamp::Call as TimestampCall;
 use pallet_transaction_payment::{ConstFeeMultiplier, FungibleAdapter, Multiplier};
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
+
+mod constants;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -270,6 +273,18 @@ impl pallet_utility::Config for Runtime {
 	type WeightInfo = pallet_utility::weights::SubstrateWeight<Runtime>;
 }
 
+parameter_types! {
+		pub const MaxBlobsPerBlock: u32 = constants::blobmanager::MAX_BLOBS_PER_BLOCK;
+		pub const MaxBlobSize: u32 = constants::blobmanager::MAX_BLOB_SIZE;
+}
+
+impl pallet_blobmanager::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = pallet_blobmanager::weights::SubstrateWeight<Runtime>;
+	type MaxBlobsPerBlock = MaxBlobsPerBlock;
+	type MaxBlobSize = MaxBlobSize;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -313,6 +328,9 @@ mod runtime {
 
 	#[runtime::pallet_index(8)]
 	pub type Utility = pallet_utility;
+
+	#[runtime::pallet_index(10)]
+	pub type BlobManager = pallet_blobmanager;
 }
 
 /// The address format for describing accounts.
@@ -362,6 +380,7 @@ mod benches {
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_sudo, Sudo]
+		[pallet_blobmanager, BlobManager]
 	);
 }
 

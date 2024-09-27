@@ -35,9 +35,9 @@ pub use frame_support::{
 };
 use frame_support::{
 	genesis_builder_helper::{build_state, get_preset},
-	traits::VariantCountOf,
+	traits::{EqualPrivilegeOnly, VariantCountOf},
 };
-pub use frame_system::{Call as SystemCall, EnsureRoot};
+pub use frame_system::{Call as SystemCall, EnsureRoot, EnsureSigned};
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_blobmanager;
 pub use pallet_timestamp::Call as TimestampCall;
@@ -274,8 +274,8 @@ impl pallet_utility::Config for Runtime {
 }
 
 parameter_types! {
-		pub const MaxBlobsPerBlock: u32 = constants::blobmanager::MAX_BLOBS_PER_BLOCK;
-		pub const MaxBlobSize: u32 = constants::blobmanager::MAX_BLOB_SIZE;
+	pub const MaxBlobsPerBlock: u32 = constants::blobmanager::MAX_BLOBS_PER_BLOCK;
+	pub const MaxBlobSize: u32 = constants::blobmanager::MAX_BLOB_SIZE;
 }
 
 impl pallet_blobmanager::Config for Runtime {
@@ -291,6 +291,24 @@ impl pallet_preimage::Config for Runtime {
 	type Currency = Balances;
 	type ManagerOrigin = EnsureRoot<AccountId>;
 	type Consideration = ();
+}
+
+parameter_types! {
+	pub MaximumSchedulerWeight: Weight = BlockWeights::get().max_block;
+	pub const MaxScheduledPerBlock: u32 = constants::scheduler::MAX_SCHEDULED_PER_BLOCK;
+}
+
+impl pallet_scheduler::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeOrigin = RuntimeOrigin;
+	type PalletsOrigin = OriginCaller;
+	type RuntimeCall = RuntimeCall;
+	type MaximumWeight = MaximumSchedulerWeight;
+	type ScheduleOrigin = EnsureSigned<AccountId>;
+	type OriginPrivilegeCmp = EqualPrivilegeOnly;
+	type MaxScheduledPerBlock = MaxScheduledPerBlock;
+	type WeightInfo = pallet_scheduler::weights::SubstrateWeight<Runtime>;
+	type Preimages = Preimage;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -342,6 +360,9 @@ mod runtime {
 
 	#[runtime::pallet_index(11)]
 	pub type Preimage = pallet_preimage;
+
+	#[runtime::pallet_index(12)]
+	pub type Scheduler = pallet_scheduler;
 }
 
 /// The address format for describing accounts.

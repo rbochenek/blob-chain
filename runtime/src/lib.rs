@@ -335,6 +335,26 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
 	type MaxProposalWeight = MaxCollectivesProposalWeight;
 }
 
+parameter_types! {
+	pub const TechnicalCommitteeMotionDuration: BlockNumber = 16;
+	pub const TechnicalCommitteeMaxProposals: u32 = constants::technicalcommittee_collective::MAX_PROPOSALS;
+	pub const TechnicalCommitteeMaxMembers: u32 = constants::technicalcommittee_collective::MAX_MEMBERS;
+}
+
+type TechnicalCommitteeCollective = pallet_collective::Instance2;
+impl pallet_collective::Config<TechnicalCommitteeCollective> for Runtime {
+	type RuntimeOrigin = RuntimeOrigin;
+	type Proposal = RuntimeCall;
+	type RuntimeEvent = RuntimeEvent;
+	type MotionDuration = TechnicalCommitteeMotionDuration;
+	type MaxProposals = TechnicalCommitteeMaxProposals;
+	type MaxMembers = TechnicalCommitteeMaxMembers;
+	type DefaultVote = pallet_collective::MoreThanMajorityThenPrimeDefaultVote;
+	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<AccountId>;
+	type MaxProposalWeight = MaxCollectivesProposalWeight;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -390,6 +410,9 @@ mod runtime {
 
 	#[runtime::pallet_index(13)]
 	pub type Council = pallet_collective::Pallet<Runtime, Instance1>;
+
+	#[runtime::pallet_index(14)]
+	pub type TechnicalCommittee = pallet_collective::Pallet<Runtime, Instance2>;
 }
 
 /// The address format for describing accounts.

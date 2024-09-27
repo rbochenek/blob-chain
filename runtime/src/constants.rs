@@ -16,3 +16,13 @@ pub mod council_collective {
 	// This pallet assumes that dependents keep to the limit without enforcing it.
 	pub const MAX_MEMBERS: u32 = 15;
 }
+
+pub mod technicalcommittee_collective {
+	// Maximum number of proposals allowed to be active in parallel.
+	pub const MAX_PROPOSALS: u32 = 4;
+	// The maximum number of members supported by the pallet. Used for weight estimation.
+	//
+	// Benchmarks will need to be re-run and weights adjusted if this changes.
+	// This pallet assumes that dependents keep to the limit without enforcing it.
+	pub const MAX_MEMBERS: u32 = 10;
+}

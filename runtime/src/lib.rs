@@ -318,7 +318,7 @@ parameter_types! {
 }
 
 parameter_types! {
-	pub const CouncilMotionDuration: BlockNumber = 20;
+	pub const CouncilMotionDuration: BlockNumber = constants::council_collective::MOTION_DURATION;
 	pub const CouncilMaxProposals: u32 = constants::council_collective::MAX_PROPOSALS;
 	pub const CouncilMaxMembers: u32 = constants::council_collective::MAX_MEMBERS;
 }
@@ -338,7 +338,7 @@ impl pallet_collective::Config<CouncilCollective> for Runtime {
 }
 
 parameter_types! {
-	pub const TechnicalCommitteeMotionDuration: BlockNumber = 16;
+	pub const TechnicalCommitteeMotionDuration: BlockNumber = constants::technicalcommittee_collective::MOTION_DURATION;
 	pub const TechnicalCommitteeMaxProposals: u32 = constants::technicalcommittee_collective::MAX_PROPOSALS;
 	pub const TechnicalCommitteeMaxMembers: u32 = constants::technicalcommittee_collective::MAX_MEMBERS;
 }

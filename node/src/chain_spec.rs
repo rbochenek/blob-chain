@@ -2,7 +2,7 @@ use blobchain_runtime::{AccountId, Signature, WASM_BINARY};
 use sc_service::ChainType;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_consensus_grandpa::AuthorityId as GrandpaId;
-use sp_core::{crypto::Ss58Codec, sr25519, Pair, Public};
+use sp_core::{sr25519, Pair, Public};
 use sp_runtime::traits::{IdentifyAccount, Verify};
 
 // The URL for the telemetry server.
@@ -53,11 +53,6 @@ pub fn development_config() -> Result<ChainSpec, String> {
 			get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
 			get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
 		],
-		// BlobManager Admin
-		// Alice + Bob multisig (threshold 2)
-		Some(
-			AccountId::from_ss58check("5F3QVbS78a4aTYLiRAD8N3czjqVoNyV42L19CXyhqUMCh4Ch").unwrap(),
-		),
 		true,
 	))
 	.build())
@@ -91,7 +86,6 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 			get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
 			get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
 		],
-		None,
 		true,
 	))
 	.build())
@@ -102,7 +96,6 @@ fn testnet_genesis(
 	initial_authorities: Vec<(AuraId, GrandpaId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
-	blobmanager_admin: Option<AccountId>,
 	_enable_println: bool,
 ) -> serde_json::Value {
 	serde_json::json!({
@@ -120,9 +113,5 @@ fn testnet_genesis(
 			// Assign network admin rights.
 			"key": Some(root_key),
 		},
-		"blobManager": {
-			// Assign blobmanager Admin.
-			"admin": blobmanager_admin,
-		}
 	})
 }

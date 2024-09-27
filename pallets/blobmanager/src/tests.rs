@@ -1,14 +1,7 @@
 #![cfg(test)]
 use super::*;
-use crate::{mock::*, Admin, Blobs, Error, Event, Uploader};
-use frame_support::{assert_noop, assert_ok, traits::Get};
-
-#[test]
-fn genesis_config_admin() {
-	new_test_ext().execute_with(|| {
-		assert_eq!(Admin::<Test>::get(), Some(1));
-	})
-}
+use crate::{mock::*, Blobs, Error, Event, Uploader};
+use frame_support::{assert_noop, assert_ok, pallet_prelude::DispatchError, traits::Get};
 
 #[test]
 fn genesis_config_uploader() {
@@ -20,37 +13,18 @@ fn genesis_config_uploader() {
 #[test]
 fn set_uploader_works() {
 	new_test_ext().execute_with(|| {
-		assert_ok!(BlobManager::set_uploader(RuntimeOrigin::signed(1), 2));
-		assert_eq!(Uploader::<Test>::get(), Some(2));
+		assert_ok!(BlobManager::set_uploader(RuntimeOrigin::root(), 3));
+		assert_eq!(Uploader::<Test>::get(), Some(3));
 	})
-}
-
-#[test]
-fn set_uploader_admin_not_set() {
-	new_test_ext().execute_with(|| {
-		Admin::<Test>::set(None);
-		assert_noop!(
-			BlobManager::set_uploader(RuntimeOrigin::signed(1), 2),
-			Error::<Test>::AdminNotSet
-		);
-	});
 }
 
 #[test]
 fn set_uploader_wrong_origin() {
 	new_test_ext().execute_with(|| {
 		assert_noop!(
-			BlobManager::set_uploader(RuntimeOrigin::signed(2), 2),
-			Error::<Test>::CallableByAdminOnly
+			BlobManager::set_uploader(RuntimeOrigin::signed(1), 2),
+			DispatchError::BadOrigin
 		);
-	})
-}
-
-#[test]
-fn set_uploader_root_origin() {
-	new_test_ext().execute_with(|| {
-		assert_ok!(BlobManager::set_uploader(RuntimeOrigin::root(), 2));
-		assert_eq!(Uploader::<Test>::get(), Some(2));
 	})
 }
 

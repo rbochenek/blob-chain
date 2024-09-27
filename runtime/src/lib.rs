@@ -463,7 +463,12 @@ mod benches {
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_sudo, Sudo]
+		[pallet_multisig, Multisig]
+		[pallet_utility, Utility]
 		[pallet_blobmanager, BlobManager]
+		[pallet_preimage, Preimage]
+		[pallet_scheduler, Scheduler]
+		[pallet_collective, Council]
 	);
 }
 

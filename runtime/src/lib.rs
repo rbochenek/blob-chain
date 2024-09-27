@@ -311,6 +311,30 @@ impl pallet_scheduler::Config for Runtime {
 	type Preimages = Preimage;
 }
 
+parameter_types! {
+	pub MaxCollectivesProposalWeight: Weight = BlockWeights::get().max_block;
+}
+
+parameter_types! {
+	pub const CouncilMotionDuration: BlockNumber = 20;
+	pub const CouncilMaxProposals: u32 = constants::council_collective::MAX_PROPOSALS;
+	pub const CouncilMaxMembers: u32 = constants::council_collective::MAX_MEMBERS;
+}
+
+type CouncilCollective = pallet_collective::Instance1;
+impl pallet_collective::Config<CouncilCollective> for Runtime {
+	type RuntimeOrigin = RuntimeOrigin;
+	type Proposal = RuntimeCall;
+	type RuntimeEvent = RuntimeEvent;
+	type MotionDuration = CouncilMotionDuration;
+	type MaxProposals = CouncilMaxProposals;
+	type MaxMembers = CouncilMaxMembers;
+	type DefaultVote = pallet_collective::PrimeDefaultVote;
+	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<AccountId>;
+	type MaxProposalWeight = MaxCollectivesProposalWeight;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -363,6 +387,9 @@ mod runtime {
 
 	#[runtime::pallet_index(12)]
 	pub type Scheduler = pallet_scheduler;
+
+	#[runtime::pallet_index(13)]
+	pub type Council = pallet_collective::Pallet<Runtime, Instance1>;
 }
 
 /// The address format for describing accounts.

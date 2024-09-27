@@ -40,6 +40,7 @@ use frame_support::{
 pub use frame_system::{Call as SystemCall, EnsureRoot, EnsureSigned};
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_blobmanager;
+pub use pallet_collective::EnsureProportionMoreThan;
 pub use pallet_timestamp::Call as TimestampCall;
 use pallet_transaction_payment::{ConstFeeMultiplier, FungibleAdapter, Multiplier};
 #[cfg(any(feature = "std", test))]
@@ -283,7 +284,7 @@ impl pallet_blobmanager::Config for Runtime {
 	type WeightInfo = pallet_blobmanager::weights::SubstrateWeight<Runtime>;
 	type MaxBlobsPerBlock = MaxBlobsPerBlock;
 	type MaxBlobSize = MaxBlobSize;
-	type AdminOrigin = EnsureRoot<AccountId>;
+	type AdminOrigin = EnsureProportionMoreThan<AccountId, TechnicalCommitteeCollective, 1, 2>; // > 50%
 }
 
 impl pallet_preimage::Config for Runtime {

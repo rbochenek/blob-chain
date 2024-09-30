@@ -30,8 +30,8 @@ pallet-utility.workspace = true
 pallet-blobmanager.workspace = true
 pallet-preimage.workspace = true
 pallet-scheduler.workspace = true
-pallet-collective.workspace = true
-pallet-democracy.workspace = true
+pallet-conviction-voting.workspace = true
+pallet-referenda.workspace = true
 sp-api.workspace = true
 sp-block-builder.workspace = true
 sp-consensus-aura = { features = ["serde"], workspace = true }
@@ -80,8 +80,8 @@ std = [
 	"pallet-blobmanager/std",
 	"pallet-preimage/std",
 	"pallet-scheduler/std",
-	"pallet-collective/std",
-	"pallet-democracy/std",
+	"pallet-conviction-voting/std",
+	"pallet-referenda/std",
 
 	"sp-api/std",
 	"sp-block-builder/std",
@@ -114,8 +114,8 @@ runtime-benchmarks = [
 	"pallet-blobmanager/runtime-benchmarks",
 	"pallet-preimage/runtime-benchmarks",
 	"pallet-scheduler/runtime-benchmarks",
-	"pallet-collective/runtime-benchmarks",
-	"pallet-democracy/runtime-benchmarks",
+	"pallet-conviction-voting/runtime-benchmarks",
+	"pallet-referenda/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 ]
 
@@ -135,7 +135,7 @@ try-runtime = [
 	"pallet-blobmanager/try-runtime",
 	"pallet-preimage/try-runtime",
 	"pallet-scheduler/try-runtime",
-	"pallet-collective/try-runtime",
-	"pallet-democracy/try-runtime",
+	"pallet-conviction-voting/try-runtime",
+	"pallet-referenda/try-runtime",
 	"sp-runtime/try-runtime",
 ]

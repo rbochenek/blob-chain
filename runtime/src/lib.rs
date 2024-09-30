@@ -22,8 +22,8 @@ use sp_version::RuntimeVersion;
 pub use frame_support::{
 	construct_runtime, derive_impl, parameter_types,
 	traits::{
-		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness,
-		StorageInfo,
+		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, EitherOfDiverse, KeyOwnerProofSystem,
+		Randomness, StorageInfo,
 	},
 	weights::{
 		constants::{
@@ -35,11 +35,12 @@ pub use frame_support::{
 };
 use frame_support::{
 	genesis_builder_helper::{build_state, get_preset},
-	traits::VariantCountOf,
+	traits::{EqualPrivilegeOnly, VariantCountOf},
 };
-pub use frame_system::Call as SystemCall;
+pub use frame_system::{Call as SystemCall, EnsureRoot, EnsureSigned};
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_blobmanager;
+pub use pallet_collective::{EnsureMember, EnsureProportionAtLeast, EnsureProportionMoreThan};
 pub use pallet_timestamp::Call as TimestampCall;
 use pallet_transaction_payment::{ConstFeeMultiplier, FungibleAdapter, Multiplier};
 #[cfg(any(feature = "std", test))]
@@ -225,7 +226,7 @@ impl pallet_balances::Config for Runtime {
 	type FreezeIdentifier = RuntimeFreezeReason;
 	type MaxFreezes = VariantCountOf<RuntimeFreezeReason>;
 	type RuntimeHoldReason = RuntimeHoldReason;
-	type RuntimeFreezeReason = RuntimeHoldReason;
+	type RuntimeFreezeReason = RuntimeFreezeReason;
 }
 
 parameter_types! {
@@ -274,8 +275,8 @@ impl pallet_utility::Config for Runtime {
 }
 
 parameter_types! {
-		pub const MaxBlobsPerBlock: u32 = constants::blobmanager::MAX_BLOBS_PER_BLOCK;
-		pub const MaxBlobSize: u32 = constants::blobmanager::MAX_BLOB_SIZE;
+	pub const MaxBlobsPerBlock: u32 = constants::blobmanager::MAX_BLOBS_PER_BLOCK;
+	pub const MaxBlobSize: u32 = constants::blobmanager::MAX_BLOB_SIZE;
 }
 
 impl pallet_blobmanager::Config for Runtime {
@@ -283,6 +284,147 @@ impl pallet_blobmanager::Config for Runtime {
 	type WeightInfo = pallet_blobmanager::weights::SubstrateWeight<Runtime>;
 	type MaxBlobsPerBlock = MaxBlobsPerBlock;
 	type MaxBlobSize = MaxBlobSize;
+	type AdminOrigin = EnsureRoot<AccountId>;
+}
+
+impl pallet_preimage::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = pallet_preimage::weights::SubstrateWeight<Runtime>;
+	type Currency = Balances;
+	type ManagerOrigin = EnsureRoot<AccountId>;
+	type Consideration = ();
+}
+
+parameter_types! {
+	pub MaximumSchedulerWeight: Weight = BlockWeights::get().max_block;
+	pub const MaxScheduledPerBlock: u32 = constants::scheduler::MAX_SCHEDULED_PER_BLOCK;
+}
+
+impl pallet_scheduler::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeOrigin = RuntimeOrigin;
+	type PalletsOrigin = OriginCaller;
+	type RuntimeCall = RuntimeCall;
+	type MaximumWeight = MaximumSchedulerWeight;
+	type ScheduleOrigin = EnsureSigned<AccountId>;
+	type OriginPrivilegeCmp = EqualPrivilegeOnly;
+	type MaxScheduledPerBlock = MaxScheduledPerBlock;
+	type WeightInfo = pallet_scheduler::weights::SubstrateWeight<Runtime>;
+	type Preimages = Preimage;
+}
+
+parameter_types! {
+	pub MaxCollectivesProposalWeight: Weight = BlockWeights::get().max_block;
+}
+
+parameter_types! {
+	pub const CouncilMotionDuration: BlockNumber = constants::council_collective::MOTION_DURATION;
+	pub const CouncilMaxProposals: u32 = constants::council_collective::MAX_PROPOSALS;
+	pub const CouncilMaxMembers: u32 = constants::council_collective::MAX_MEMBERS;
+}
+
+type CouncilCollective = pallet_collective::Instance1;
+impl pallet_collective::Config<CouncilCollective> for Runtime {
+	type RuntimeOrigin = RuntimeOrigin;
+	type Proposal = RuntimeCall;
+	type RuntimeEvent = RuntimeEvent;
+	type MotionDuration = CouncilMotionDuration;
+	type MaxProposals = CouncilMaxProposals;
+	type MaxMembers = CouncilMaxMembers;
+	type DefaultVote = pallet_collective::PrimeDefaultVote;
+	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<AccountId>;
+	type MaxProposalWeight = MaxCollectivesProposalWeight;
+}
+
+parameter_types! {
+	pub const TechnicalCommitteeMotionDuration: BlockNumber = constants::technicalcommittee_collective::MOTION_DURATION;
+	pub const TechnicalCommitteeMaxProposals: u32 = constants::technicalcommittee_collective::MAX_PROPOSALS;
+	pub const TechnicalCommitteeMaxMembers: u32 = constants::technicalcommittee_collective::MAX_MEMBERS;
+}
+
+type TechnicalCommitteeCollective = pallet_collective::Instance2;
+impl pallet_collective::Config<TechnicalCommitteeCollective> for Runtime {
+	type RuntimeOrigin = RuntimeOrigin;
+	type Proposal = RuntimeCall;
+	type RuntimeEvent = RuntimeEvent;
+	type MotionDuration = TechnicalCommitteeMotionDuration;
+	type MaxProposals = TechnicalCommitteeMaxProposals;
+	type MaxMembers = TechnicalCommitteeMaxMembers;
+	type DefaultVote = pallet_collective::MoreThanMajorityThenPrimeDefaultVote;
+	type WeightInfo = pallet_collective::weights::SubstrateWeight<Runtime>;
+	type SetMembersOrigin = EnsureRoot<AccountId>;
+	type MaxProposalWeight = MaxCollectivesProposalWeight;
+}
+
+parameter_types! {
+	pub const EnactmentPeriod: BlockNumber = constants::democracy::ENACTMENT_PERIOD;
+	pub const LaunchPeriod: BlockNumber = constants::democracy::LAUNCH_PERIOD;
+	pub const VotingPeriod: BlockNumber = constants::democracy::VOTING_PERIOD;
+	pub const VoteLockingPeriod: BlockNumber = constants::democracy::VOTE_LOCKING_PERIOD;
+	pub const MinimumDeposit: Balance = constants::democracy::MINIMUM_DEPOSIT;
+	pub const InstantAllowed: bool = constants::democracy::INSTANT_ALLOWED;
+	pub const FastTrackVotingPeriod: BlockNumber = constants::democracy::FAST_TRACK_VOTING_PERIOD;
+	pub const CooloffPeriod: BlockNumber = constants::democracy::COOLOFF_PERIOD;
+	pub const MaxVotes: u32 = constants::democracy::MAX_VOTES;
+	pub const MaxProposals: u32 = constants::democracy::MAX_PROPOSALS;
+	pub const MaxDeposits: u32 = constants::democracy::MAX_DEPOSITS;
+	pub const MaxBlacklisted: u32 = constants::democracy::MAX_BLACKLISTED;
+}
+
+impl pallet_democracy::Config for Runtime {
+	type WeightInfo = pallet_democracy::weights::SubstrateWeight<Runtime>;
+	type RuntimeEvent = RuntimeEvent;
+	type Scheduler = Scheduler;
+	type Preimages = Preimage;
+	type Currency = Balances;
+	type EnactmentPeriod = EnactmentPeriod;
+	type LaunchPeriod = LaunchPeriod;
+	type VotingPeriod = VotingPeriod;
+	type VoteLockingPeriod = VoteLockingPeriod;
+	type MinimumDeposit = MinimumDeposit;
+	type InstantAllowed = InstantAllowed;
+	type FastTrackVotingPeriod = FastTrackVotingPeriod;
+	type CooloffPeriod = CooloffPeriod;
+	type MaxVotes = MaxVotes;
+	type MaxProposals = MaxProposals;
+	type MaxDeposits = MaxDeposits;
+	type MaxBlacklisted = MaxBlacklisted;
+	// Origin from which the next tabled referendum may be forced. This is a normal
+	// “super-majority-required” referendum.
+	type ExternalOrigin = EnsureProportionAtLeast<AccountId, CouncilCollective, 1, 2>;
+	// Origin from which the next tabled referendum may be forced; this allows for the tabling of a
+	// majority-carries referendum.
+	type ExternalMajorityOrigin = EnsureProportionAtLeast<AccountId, CouncilCollective, 3, 4>;
+	// Origin from which the next tabled referendum may be forced; this allows for the tabling of a
+	// negative-turnout-bias (default-carries) referendum.
+	type ExternalDefaultOrigin = EnsureProportionAtLeast<AccountId, CouncilCollective, 1, 1>;
+	// Origin from which the new proposal can be made.
+	//
+	// The success variant is the account id of the depositor.
+	type SubmitOrigin = EnsureSigned<AccountId>;
+	// Origin from which the next majority-carries (or more permissive) referendum may be tabled to
+	// vote according to the FastTrackVotingPeriod asynchronously in a similar manner to the
+	// emergency origin. It retains its threshold method.
+	type FastTrackOrigin = EnsureProportionAtLeast<AccountId, TechnicalCommitteeCollective, 2, 3>;
+	// Origin from which the next majority-carries (or more permissive) referendum may be tabled to
+	// vote immediately and asynchronously in a similar manner to the emergency origin. It retains
+	// its threshold method.
+	type InstantOrigin = EnsureProportionAtLeast<AccountId, TechnicalCommitteeCollective, 1, 1>;
+	// Origin from which any referendum may be cancelled in an emergency.
+	type CancellationOrigin = EnsureProportionAtLeast<AccountId, CouncilCollective, 2, 3>;
+	// Origin from which proposals may be blacklisted.
+	type BlacklistOrigin = EnsureRoot<AccountId>;
+	// Origin from which a proposal may be cancelled and its backers slashed.
+	type CancelProposalOrigin = EitherOfDiverse<
+		EnsureRoot<AccountId>,
+		EnsureProportionAtLeast<AccountId, TechnicalCommitteeCollective, 1, 1>,
+	>;
+	// Origin for anyone able to veto proposals.
+	type VetoOrigin = EnsureMember<AccountId, CouncilCollective>;
+	type PalletsOrigin = OriginCaller;
+	// Handler for the unbalanced reduction when slashing a preimage deposit.
+	type Slash = ();
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -331,6 +473,21 @@ mod runtime {
 
 	#[runtime::pallet_index(10)]
 	pub type BlobManager = pallet_blobmanager;
+
+	#[runtime::pallet_index(11)]
+	pub type Preimage = pallet_preimage;
+
+	#[runtime::pallet_index(12)]
+	pub type Scheduler = pallet_scheduler;
+
+	#[runtime::pallet_index(13)]
+	pub type Council = pallet_collective::Pallet<Runtime, Instance1>;
+
+	#[runtime::pallet_index(14)]
+	pub type TechnicalCommittee = pallet_collective::Pallet<Runtime, Instance2>;
+
+	#[runtime::pallet_index(15)]
+	pub type Democracy = pallet_democracy;
 }
 
 /// The address format for describing accounts.
@@ -380,7 +537,13 @@ mod benches {
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_sudo, Sudo]
+		[pallet_multisig, Multisig]
+		[pallet_utility, Utility]
 		[pallet_blobmanager, BlobManager]
+		[pallet_preimage, Preimage]
+		[pallet_scheduler, Scheduler]
+		[pallet_collective, Council]
+		[pallet_democracy, Democracy]
 	);
 }
 

@@ -46,10 +46,9 @@ pub mod pallet {
 		type MaxBlobsPerBlock: Get<u32>;
 		/// The maximum size of a single blob (in bytes)
 		type MaxBlobSize: Get<u32>;
+		/// Origin allowed to set Uploader
+		type AdminOrigin: EnsureOrigin<Self::RuntimeOrigin>;
 	}
-
-	#[pallet::storage]
-	pub type Admin<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
 	#[pallet::storage]
 	pub type Uploader<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
@@ -66,10 +65,6 @@ pub mod pallet {
 	// Errors that can be returned by this pallet
 	#[pallet::error]
 	pub enum Error<T> {
-		// Admin is not set
-		AdminNotSet,
-		// Only callable by Admin
-		CallableByAdminOnly,
 		// Uploader not set
 		UploaderNotSet,
 		// Only callable by Uploader
@@ -91,14 +86,13 @@ pub mod pallet {
 	// Genesis config
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T: Config> {
-		pub admin: Option<T::AccountId>,
 		pub uploader: Option<T::AccountId>,
 	}
 
 	// Genesis config (default)
 	impl<T: Config> Default for GenesisConfig<T> {
 		fn default() -> Self {
-			Self { admin: None, uploader: None }
+			Self { uploader: None }
 		}
 	}
 
@@ -106,10 +100,6 @@ pub mod pallet {
 	#[pallet::genesis_build]
 	impl<T: Config> BuildGenesisConfig for GenesisConfig<T> {
 		fn build(&self) {
-			if let Some(admin) = &self.admin {
-				Admin::<T>::put(admin);
-			}
-
 			if let Some(uploader) = &self.uploader {
 				Uploader::<T>::put(uploader);
 			}
@@ -120,20 +110,12 @@ pub mod pallet {
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
 		/// Set new Uploader
-		/// Callable by Admin or Root
+		/// Callable by AdminOrigin
 		#[pallet::call_index(0)]
 		#[pallet::weight(T::WeightInfo::set_uploader())]
 		pub fn set_uploader(origin: OriginFor<T>, uploader: T::AccountId) -> DispatchResult {
-			let sender = ensure_signed_or_root(origin)?;
-
-			// Validate Admin
-			if let Some(sender_other_than_root) = sender {
-				if let Some(admin) = Admin::<T>::get() {
-					ensure!(sender_other_than_root == admin, Error::<T>::CallableByAdminOnly);
-				} else {
-					return Err(Error::<T>::AdminNotSet.into());
-				}
-			}
+			// Verify origin
+			T::AdminOrigin::ensure_origin(origin)?;
 
 			// Update Uploader
 			Uploader::<T>::put(uploader);

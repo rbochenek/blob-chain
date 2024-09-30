@@ -42,16 +42,16 @@ pub mod democracy {
 	// It should generally be a little more than the unstake period to ensure that voting stakers
 	// have an opportunity to remove themselves from the system in the case where they are on the
 	// losing side of a vote.
-	pub const ENACTMENT_PERIOD: BlockNumber = 12;
+	pub const ENACTMENT_PERIOD: BlockNumber = 20;
 	// How often (in blocks) new public referenda are launched.
-	pub const LAUNCH_PERIOD: BlockNumber = 8;
+	pub const LAUNCH_PERIOD: BlockNumber = 10;
 	// How often (in blocks) to check for new votes.
-	pub const VOTING_PERIOD: BlockNumber = 4;
+	pub const VOTING_PERIOD: BlockNumber = 30;
 	// The minimum period of vote locking.
 	//
 	// It should be no shorter than enactment period to ensure that in the case of an approval,
 	// those successful voters are locked into the consequences that their votes entail.
-	pub const VOTE_LOCKING_PERIOD: BlockNumber = 12;
+	pub const VOTE_LOCKING_PERIOD: BlockNumber = 20;
 	// The minimum amount to be used as a deposit for a public referendum proposal.
 	pub const MINIMUM_DEPOSIT: Balance = 100_000_000;
 	// Indicator for whether an emergency origin is even allowed to happen. Some chains may want to
@@ -59,7 +59,7 @@ pub mod democracy {
 	// having happened recently.
 	pub const INSTANT_ALLOWED: bool = true;
 	// Minimum voting period allowed for a fast-track referendum.
-	pub const FAST_TRACK_VOTING_PERIOD: BlockNumber = 2;
+	pub const FAST_TRACK_VOTING_PERIOD: BlockNumber = 10;
 	// Period in blocks where an external proposal may not be re-submitted after being vetoed.
 	pub const COOLOFF_PERIOD: BlockNumber = 30;
 	// The maximum number of votes for an account.

@@ -284,7 +284,7 @@ impl pallet_blobmanager::Config for Runtime {
 	type WeightInfo = pallet_blobmanager::weights::SubstrateWeight<Runtime>;
 	type MaxBlobsPerBlock = MaxBlobsPerBlock;
 	type MaxBlobSize = MaxBlobSize;
-	type AdminOrigin = EnsureProportionMoreThan<AccountId, TechnicalCommitteeCollective, 1, 2>; // > 50%
+	type AdminOrigin = EnsureRoot<AccountId>;
 }
 
 impl pallet_preimage::Config for Runtime {

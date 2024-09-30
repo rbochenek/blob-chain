@@ -313,6 +313,7 @@ impl pallet_scheduler::Config for Runtime {
 }
 
 parameter_types! {
+	#[derive(Debug)] // Needed by pallet-conviction-voting "runtime-benchmarks"
 	pub const MaxVotes: u32 = constants::conviction_voting::MAX_VOTES;
 	pub const VoteLockingPeriod: BlockNumber = constants::conviction_voting::VOTE_LOCKING_PERIOD;
 }

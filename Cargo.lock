@@ -753,6 +753,7 @@ name = "blobchain-runtime"
 version = "0.1.0"
 dependencies = [
  "frame-benchmarking",
+ "frame-election-provider-support",
  "frame-executive",
  "frame-support",
  "frame-system",
@@ -768,6 +769,8 @@ dependencies = [
  "pallet-preimage",
  "pallet-referenda",
  "pallet-scheduler",
+ "pallet-session",
+ "pallet-staking",
  "pallet-sudo",
  "pallet-timestamp",
  "pallet-transaction-payment",
@@ -785,6 +788,7 @@ dependencies = [
  "sp-offchain",
  "sp-runtime",
  "sp-session",
+ "sp-staking",
  "sp-storage",
  "sp-transaction-pool",
  "sp-version",
@@ -2269,6 +2273,35 @@ dependencies = [
  "sp-wasm-interface",
  "thiserror",
  "thousands",
+]
+
+[[package]]
+name = "frame-election-provider-solution-type"
+version = "14.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8156f209055d352994ecd49e19658c6b469d7c6de923bd79868957d0dcfb6f71"
+dependencies = [
+ "proc-macro-crate 3.1.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.72",
+]
+
+[[package]]
+name = "frame-election-provider-support"
+version = "37.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "772f6843543fea5d5083f8f7fe714632f6ab7a230a0a805ccc669e97330494a2"
+dependencies = [
+ "frame-election-provider-solution-type",
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-arithmetic",
+ "sp-core",
+ "sp-npos-elections",
+ "sp-runtime",
 ]
 
 [[package]]
@@ -5228,6 +5261,29 @@ dependencies = [
  "sp-staking",
  "sp-state-machine",
  "sp-trie",
+]
+
+[[package]]
+name = "pallet-staking"
+version = "37.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e59824a9ca557a64c4ba26331a2db84f91610e75620a497610287a16edfb52d7"
+dependencies = [
+ "frame-benchmarking",
+ "frame-election-provider-support",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-authorship",
+ "pallet-session",
+ "parity-scale-codec",
+ "rand_chacha",
+ "scale-info",
+ "serde",
+ "sp-application-crypto",
+ "sp-io",
+ "sp-runtime",
+ "sp-staking",
 ]
 
 [[package]]
@@ -8542,6 +8598,20 @@ dependencies = [
  "scale-info",
  "sp-api",
  "sp-application-crypto",
+]
+
+[[package]]
+name = "sp-npos-elections"
+version = "34.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af922f112c7c1ed199eabe14f12a82ceb75e1adf0804870eccfbcf3399492847"
+dependencies = [
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-arithmetic",
+ "sp-core",
+ "sp-runtime",
 ]
 
 [[package]]

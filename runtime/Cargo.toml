@@ -18,6 +18,7 @@ scale-info = { features = ["derive", "serde"], workspace = true }
 frame-support = { features = ["experimental"], workspace = true }
 frame-system.workspace = true
 frame-try-runtime = { optional = true, workspace = true }
+frame-election-provider-support.workspace = true
 frame-executive.workspace = true
 pallet-aura.workspace = true
 pallet-balances.workspace = true
@@ -32,6 +33,8 @@ pallet-preimage.workspace = true
 pallet-scheduler.workspace = true
 pallet-conviction-voting.workspace = true
 pallet-referenda.workspace = true
+pallet-session.workspace = true
+pallet-staking.workspace = true
 sp-api.workspace = true
 sp-block-builder.workspace = true
 sp-consensus-aura = { features = ["serde"], workspace = true }
@@ -45,6 +48,7 @@ sp-storage.workspace = true
 sp-transaction-pool.workspace = true
 sp-version = { features = ["serde"], workspace = true }
 sp-genesis-builder.workspace = true
+sp-staking.workspace = true
 frame-system-rpc-runtime-api.workspace = true
 pallet-transaction-payment-rpc-runtime-api.workspace = true
 frame-benchmarking = { optional = true, workspace = true }
@@ -64,6 +68,7 @@ std = [
 	"frame-system-benchmarking?/std",
 	"frame-system-rpc-runtime-api/std",
 	"frame-system/std",
+	"frame-election-provider-support/std",
 
 	"frame-benchmarking?/std",
 	"frame-try-runtime?/std",
@@ -82,6 +87,8 @@ std = [
 	"pallet-scheduler/std",
 	"pallet-conviction-voting/std",
 	"pallet-referenda/std",
+	"pallet-session/std",
+	"pallet-staking/std",
 
 	"sp-api/std",
 	"sp-block-builder/std",
@@ -93,6 +100,7 @@ std = [
 	"sp-offchain/std",
 	"sp-runtime/std",
 	"sp-session/std",
+	"sp-staking/std",
 	"sp-storage/std",
 	"sp-transaction-pool/std",
 	"sp-version/std",
@@ -105,6 +113,7 @@ runtime-benchmarks = [
 	"frame-support/runtime-benchmarks",
 	"frame-system-benchmarking/runtime-benchmarks",
 	"frame-system/runtime-benchmarks",
+	"frame-election-provider-support/runtime-benchmarks",
 	"pallet-balances/runtime-benchmarks",
 	"pallet-grandpa/runtime-benchmarks",
 	"pallet-sudo/runtime-benchmarks",
@@ -116,7 +125,9 @@ runtime-benchmarks = [
 	"pallet-scheduler/runtime-benchmarks",
 	"pallet-conviction-voting/runtime-benchmarks",
 	"pallet-referenda/runtime-benchmarks",
+	"pallet-staking/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
+	"sp-staking/runtime-benchmarks",
 ]
 
 try-runtime = [
@@ -137,5 +148,7 @@ try-runtime = [
 	"pallet-scheduler/try-runtime",
 	"pallet-conviction-voting/try-runtime",
 	"pallet-referenda/try-runtime",
+	"pallet-session/try-runtime",
+	"pallet-staking/try-runtime",
 	"sp-runtime/try-runtime",
 ]

@@ -48,6 +48,7 @@ substrate-frame-rpc-system = { version = "38.0.0", default-features = false }
 substrate-build-script-utils = { version = "11.0.0", default-features = false }
 codec = { version = "3.6.12", default-features = false, package = "parity-scale-codec" }
 frame-benchmarking = { version = "37.0.0", default-features = false }
+frame-election-provider-support = { version = "37.0.0", default-features = false }
 frame-executive = { version = "37.0.0", default-features = false }
 frame-support = { version = "37.0.0", default-features = false }
 frame-system-benchmarking = { version = "37.0.0", default-features = false }
@@ -66,10 +67,13 @@ pallet-preimage = { version = "37.0.0", default-features = false }
 pallet-scheduler = { version = "38.0.0", default-features = false }
 pallet-conviction-voting = { version = "37.0.0", default-features = false }
 pallet-referenda = { version = "37.0.0", default-features = false }
+pallet-session = { version = "37.0.0", default-features = false }
+pallet-staking = { version = "37.0.0", default-features = false }
 scale-info = { version = "2.11.1", default-features = false }
 sp-genesis-builder = { version = "0.15.0", default-features = false }
 sp-offchain = { version = "34.0.0", default-features = false }
 sp-session = { version = "35.0.0", default-features = false }
+sp-staking = { version = "34.0.0", default-features = false }
 sp-storage = { version = "21.0.0", default-features = false }
 sp-transaction-pool = { version = "34.0.0", default-features = false }
 sp-version = { version = "37.0.0", default-features = false }

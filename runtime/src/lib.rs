@@ -11,10 +11,11 @@ use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
-	traits::{BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, One, Verify},
+	traits::{BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, One, OpaqueKeys, Verify},
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
 };
+use sp_staking::{EraIndex, SessionIndex};
 #[cfg(feature = "std")]
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
@@ -400,6 +401,84 @@ impl pallet_referenda::Config for Runtime {
 	type Preimages = Preimage;
 }
 
+pub struct StakingBenchmarkingConfig;
+impl pallet_staking::BenchmarkingConfig for StakingBenchmarkingConfig {
+	type MaxNominators = ConstU32<1000>;
+	type MaxValidators = ConstU32<1000>;
+}
+
+parameter_types! {
+	pub ElectionOnChainBounds: frame_election_provider_support::bounds::ElectionBounds = frame_election_provider_support::bounds::ElectionBoundsBuilder::default().build();
+	pub const HistoryDepth: u32 = constants::staking::HISTORY_DEPTH;
+	pub const SessionsPerEra: SessionIndex  = constants::staking::SESSIONS_PER_ERA;
+	pub const BondingDuration: EraIndex = constants::staking::BONDING_DURATION;
+	pub const SlashDeferDuration: EraIndex = constants::staking::SLASH_DEFER_DURATION;
+	pub const MaxExposurePageSize: u32 = constants::staking::MAX_EXPOSURE_PAGE_SIZE;
+	pub const MaxUnlockingChunks: u32 = constants::staking::MAX_UNLOCKING_CHUNKS;
+	pub const MaxControllersInDeprecationBatch: u32 = constants::staking::MAX_CONTROLLERS_IN_DEPRECATION_BATCH;
+}
+
+pub struct ElectionOnChain;
+impl frame_election_provider_support::onchain::Config for ElectionOnChain {
+	type System = Runtime;
+	type Solver =
+		frame_election_provider_support::SequentialPhragmen<AccountId, sp_runtime::PerU16>;
+	type DataProvider = Staking;
+	type WeightInfo = frame_election_provider_support::weights::SubstrateWeight<Runtime>;
+	type MaxWinners = ConstU32<32>;
+	type Bounds = ElectionOnChainBounds;
+}
+
+impl pallet_staking::Config for Runtime {
+	type Currency = Balances;
+	type CurrencyBalance = Balance;
+	type UnixTime = Timestamp;
+	type CurrencyToVote = sp_staking::currency_to_vote::U128CurrencyToVote;
+	type ElectionProvider =
+		frame_election_provider_support::onchain::OnChainExecution<ElectionOnChain>;
+	type GenesisElectionProvider =
+		frame_election_provider_support::onchain::OnChainExecution<ElectionOnChain>;
+	type NominationsQuota = pallet_staking::FixedNominationsQuota<32>;
+	type HistoryDepth = HistoryDepth;
+	type RewardRemainder = ();
+	type RuntimeEvent = RuntimeEvent;
+	type Slash = ();
+	type Reward = ();
+	type SessionsPerEra = SessionsPerEra;
+	type BondingDuration = BondingDuration;
+	type SlashDeferDuration = SlashDeferDuration;
+	type AdminOrigin = EnsureRoot<AccountId>;
+	type SessionInterface = ();
+	type EraPayout = ();
+	type NextNewSession = Session;
+	type MaxExposurePageSize = MaxExposurePageSize;
+	type VoterList = pallet_staking::UseNominatorsAndValidatorsMap<Self>;
+	type TargetList = pallet_staking::UseValidatorsMap<Self>;
+	type MaxUnlockingChunks = MaxUnlockingChunks;
+	type MaxControllersInDeprecationBatch = MaxControllersInDeprecationBatch;
+	type EventListeners = ();
+	type DisablingStrategy = pallet_staking::UpToLimitDisablingStrategy;
+	type BenchmarkingConfig = StakingBenchmarkingConfig;
+	type WeightInfo = pallet_staking::weights::SubstrateWeight<Runtime>;
+}
+
+parameter_types! {
+	pub const Period: u32 = 10;
+	pub const Offset: u32 = 0;
+}
+
+impl pallet_session::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type ValidatorId = AccountId;
+	type ValidatorIdOf = pallet_staking::StashOf<Self>;
+	type ShouldEndSession = pallet_session::PeriodicSessions<Period, Offset>;
+	type NextSessionRotation = pallet_session::PeriodicSessions<Period, Offset>;
+	type SessionManager = ();
+	type SessionHandler = <opaque::SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
+	type Keys = opaque::SessionKeys;
+	type WeightInfo = pallet_session::weights::SubstrateWeight<Runtime>;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 #[frame_support::runtime]
 mod runtime {
@@ -458,6 +537,12 @@ mod runtime {
 
 	#[runtime::pallet_index(14)]
 	pub type Referenda = pallet_referenda;
+
+	#[runtime::pallet_index(15)]
+	pub type Staking = pallet_staking;
+
+	#[runtime::pallet_index(16)]
+	pub type Session = pallet_session;
 }
 
 /// The address format for describing accounts.

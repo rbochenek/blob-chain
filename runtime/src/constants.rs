@@ -1,4 +1,5 @@
 use crate::{Balance, BlockNumber};
+use sp_staking::{EraIndex, SessionIndex};
 
 pub mod blobmanager {
 	pub const MAX_BLOBS_PER_BLOCK: u32 = 5;
@@ -36,4 +37,54 @@ pub mod conviction_voting {
 	// It should be no shorter than enactment period to ensure that in the case of an approval,
 	// those successful voters are locked into the consequences that their votes entail.
 	pub const VOTE_LOCKING_PERIOD: BlockNumber = 20;
+}
+
+pub mod staking {
+	use super::*;
+	// Number of eras to keep in history.
+	//
+	// Following information is kept for eras in [current_era - HistoryDepth, current_era]:
+	// ErasStakers, ErasStakersClipped, ErasValidatorPrefs, ErasValidatorReward, ErasRewardPoints,
+	// ErasTotalStake, ErasStartSessionIndex, ClaimedRewards, ErasStakersPaged, ErasStakersOverview.
+	//
+	// Must be more than the number of eras delayed by session. I.e. active era must always be in
+	// history. I.e. active_era > current_era - history_depth must be guaranteed.
+	//
+	// If migrating an existing pallet from storage value to config value, this should be set to
+	// same value or greater as in storage.
+	//
+	// Note: HistoryDepth is used as the upper bound for the BoundedVec item
+	// StakingLedger.legacy_claimed_rewards. Setting this value lower than the existing value can
+	// lead to inconsistencies in the StakingLedger and will need to be handled properly in a
+	// migration. The test reducing_history_depth_abrupt shows this effect.
+	pub const HISTORY_DEPTH: u32 = 100;
+	// Number of sessions per era.
+	pub const SESSIONS_PER_ERA: SessionIndex = 6;
+	// Number of eras that staked funds must remain bonded for.
+	pub const BONDING_DURATION: EraIndex = 28;
+	// Number of eras that slashes are deferred by, after computation.
+	//
+	// This should be less than the bonding duration. Set to 0 if slashes should be applied
+	// immediately, without opportunity for intervention.
+	pub const SLASH_DEFER_DURATION: EraIndex = 7;
+	// The maximum size of each T::ExposurePage.
+	//
+	// An ExposurePage is weakly bounded to a maximum of MaxExposurePageSize nominators.
+	//
+	// For older non-paged exposure, a reward payout was restricted to the top MaxExposurePageSize
+	// nominators. This is to limit the i/o cost for the nominator payout.
+	//
+	// Note: MaxExposurePageSize is used to bound ClaimedRewards and is unsafe to reduce without
+	// handling it in a migration.
+	pub const MAX_EXPOSURE_PAGE_SIZE: u32 = 20;
+	// The maximum number of unlocking chunks a StakingLedger can have. Effectively determines how
+	// many unique eras a staker may be unbonding in.
+	//
+	// Note: MaxUnlockingChunks is used as the upper bound for the BoundedVec item
+	// StakingLedger.unlocking. Setting this value lower than the existing value can lead to
+	// inconsistencies in the StakingLedger and will need to be handled properly in a runtime
+	// migration. The test reducing_max_unlocking_chunks_abrupt shows this effect.
+	pub const MAX_UNLOCKING_CHUNKS: u32 = 10;
+	// The maximum amount of controller accounts that can be deprecated in one call.
+	pub const MAX_CONTROLLERS_IN_DEPRECATION_BATCH: u32 = 5;
 }

@@ -599,6 +599,7 @@ mod benches {
 		[pallet_scheduler, Scheduler]
 		[pallet_conviction_voting, ConvictionVoting]
 		[pallet_referenda, Referenda]
+		[pallet_staking, Staking]
 	);
 }
 
